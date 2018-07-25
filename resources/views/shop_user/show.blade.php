@@ -1,8 +1,11 @@
 @extends('default')
 @section('content')
     <div class="container-fluid row">
-        <div class="col-xs-2">
+        <div class="col-xs-1">
             <a href="/"><button type="button" class="btn btn-primary">返回主页</button></a>
+        </div>
+        <div class="col-xs-2">
+            <a href="{{route('shops.edit',[$shop])}}"><button type="button" class="btn btn-primary">修改商铺信息</button></a>
         </div>
     </div>
     <div class="container-fluid">

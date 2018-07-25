@@ -164,6 +164,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Mews\Captcha\CaptchaServiceProvider::class,
+        Jacobcyl\AliOSS\AliOssServiceProvider::class,
         /*
          * Package Service Providers...
          */

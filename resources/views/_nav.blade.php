@@ -42,7 +42,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">个人信息 <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{route('reset_password')}}">修改密码</a></li>
-                        <li><a href="#">Another action</a></li>
+                        <li><a href="{{route('shop_users.edit',[1])}}">修改个人信息</a></li>
                         <li><a href="#">Something else here</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a href="{{route('logout')}}">注销登录</a></li>

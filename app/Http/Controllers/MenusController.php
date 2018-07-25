@@ -15,9 +15,25 @@ class MenusController extends Controller
         ]);
     }
     //展示
-    public function index(){
-        $menus=Menu::where('shop_id','=',auth()->user()->shop_id)->paginate(5);
-        return view('menu/index',['menus'=>$menus]);
+    public function index(Request $request){
+        $menu_categories=MenuCategory::all()->where('shop_id','=',auth()->user()->shop_id);
+
+        $where=[
+            ['shop_id','=',auth()->user()->shop_id]
+        ];
+        if ($request->category_id){$where[]=['category_id','=',$request->category_id];}
+        if ($request->goods_name){$where[]=['goods_name','like','%'.$request->goods_name.'%'];}
+        if ($request->price_min){$where[]=['goods_price','>=',$request->price_min];}
+        if ($request->price_max){$where[]=['goods_price','<=',$request->price_max];}
+
+        $menus=Menu::where($where)->paginate(5);
+        return view('menu/index',['menus'=>$menus,
+            'menu_categories'=>$menu_categories,
+            'category_id'=>$request->category_id,
+            'goods_name'=>$request->goods_name,
+            'price_min'=>$request->price_min,
+            'price_max'=>$request->price_max,
+        ]);
     }
     public function show(Menu $menu){
         return view('menu/show',['menu'=>$menu]);
@@ -41,8 +57,7 @@ class MenusController extends Controller
         ]);
         if (!$request->description){$request->description='暂无';}
         if (!$request->tips){$request->tips='暂无';}
-        $goods_img=$request->goods_img->store('public/menu');
-        $goods_img=\Illuminate\Support\Facades\Storage::url($goods_img);
+        $goods_img=$request->goods_img;
         Menu::create([
             'goods_name'=>$request->goods_name,
             'rating'=>0,
@@ -55,7 +70,7 @@ class MenusController extends Controller
             'tips'=>$request->tips,
             'satisfy_count'=>0,
             'satisfy_rate'=>0,
-            'goods_img'=>url($goods_img),
+            'goods_img'=>$goods_img,
 
         ]);
         session()->flash('success','添加成功');
@@ -78,26 +93,23 @@ class MenusController extends Controller
         $this->validate($request, [
             'goods_name' => 'required|max:50',
             'goods_price' => 'required|numeric',
-            'goods_img' => 'required',
         ], [
             'goods_name.required' => '请输入菜品名字',
             'goods_name.max' => '菜品名字过长',
             'goods_price.required' => '菜品价格必须填写',
             'goods_price.numeric' => '菜品价格必须为数字',
-            'goods_img.required' => '须上传一张商品商品',
         ]);
         if (!$request->description){$request->description='暂无';}
         if (!$request->tips){$request->tips='暂无';}
-        $goods_img=$request->goods_img->store('public/menu');
-        $goods_img=\Illuminate\Support\Facades\Storage::url($goods_img);
-        $menu->update([
+        $update=[
             'goods_name'=>$request->goods_name,
             'goods_price'=>$request->goods_price,
             'category_id'=>$request->category_id,
             'description'=>$request->description,
             'tips'=>$request->tips,
-            'goods_img'=>url($goods_img),
-        ]);
+        ];
+        if ($request->goods_img){$update['goods_img']=$request->goods_img;}
+        $menu->update($update);
         session()->flash('success','修改成功');
         return redirect()->route('menus.index');
     }

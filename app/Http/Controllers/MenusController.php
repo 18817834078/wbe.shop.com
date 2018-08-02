@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\model\Menu;
 use App\model\MenuCategory;
+use App\model\OrderGood;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MenusController extends Controller
 {
@@ -112,5 +114,49 @@ class MenusController extends Controller
         $menu->update($update);
         session()->flash('success','修改成功');
         return redirect()->route('menus.index');
+    }
+    //统计
+    public function count(Request $request){
+        $shop_id=auth()->user()->shop->id;
+        $today=date('Y-m-d',time());
+        $this_month=date('Y-m',time());
+        $count_today=DB::select("select goods_name,SUM(amount) as sum 
+from order_goods 
+where goods_id IN (select id from menus where shop_id={$shop_id}) and created_at LIKE '{$today}%' 
+group by goods_id order by sum desc");
+        $count_this_month=DB::select("select goods_name,SUM(amount) as sum 
+from order_goods 
+where goods_id IN (select id from menus where shop_id={$shop_id}) and created_at LIKE '{$this_month}%' 
+group by goods_id order by sum desc");
+        $count_all=DB::select("select goods_name,SUM(amount) as sum 
+from order_goods 
+where goods_id IN (select id from menus where shop_id={$shop_id})  
+group by goods_id order by sum desc");
+        $count_day=[];$count_month=[];
+        if ($request->search_day){
+            $day=$request->search_day;
+            $count_day=DB::select("select goods_name,SUM(amount) as sum 
+from order_goods 
+where goods_id IN (select id from menus where shop_id={$shop_id}) and created_at LIKE '{$day}%' 
+group by goods_id order by sum desc");
+        }
+        if ($request->search_month){
+            $month=$request->search_month;
+            $count_month=DB::select("select goods_name,SUM(amount) as sum 
+from order_goods 
+where goods_id IN (select id from menus where shop_id={$shop_id}) and created_at LIKE '{$month}%' 
+group by goods_id order by sum desc");
+        }
+
+        return view('menu/count',[
+            'count_today'=>$count_today,
+            'count_this_month'=>$count_this_month,
+            'count_all'=>$count_all,
+            'count_day'=>$count_day,
+            'count_month'=>$count_month,
+            'search_day'=>$request->search_day,
+            'search_month'=>$request->search_month,
+
+        ]);
     }
 }

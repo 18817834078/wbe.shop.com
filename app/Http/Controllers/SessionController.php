@@ -104,6 +104,9 @@ class SessionController extends Controller
             'captcha.captcha' => '请输入正确的验证码',
         ]);
         $shop_user=ShopUser::where('name','=',$request->name)->first();
+        if (!$shop_user){
+            return back()->with('danger','用户名或密码错误');
+        }
         $shop=Shop::where('id','=',$shop_user->shop_id)->first();
         if ($shop_user->status!=1){
             return back()->with('danger','此账户已被禁用');

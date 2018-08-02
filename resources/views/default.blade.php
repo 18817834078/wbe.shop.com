@@ -32,7 +32,9 @@
         <div class="container"><a href="{{route('shop_users.show',['1'])}}"><h5>我的店铺</h5></a> </div>
         <div class="container"><a href="{{route('menu_categories.index')}}"><h5>我的菜品分类</h5></a> </div>
         <div class="container"><a href="{{route('menus.index')}}"><h5>我的菜品</h5></a> </div>
+        <div class="container"><a href="{{route('orders.index')}}"><h5>我的订单</h5></a> </div>
         <div class="container"><a href="{{route('activities.index')}}"><h5>活动页面</h5></a> </div>
+        <div class="container"><a href="{{route('events.index')}}"><h5>抽奖活动</h5></a> </div>
     </div>
     <div class="col-xs-10 container">
         <div class="container-fluid">@include('/success')</div>

@@ -21,7 +21,16 @@ Route::resource('shops','ShopsController');
 Route::resource('menu_categories','MenuCategoriesController');
 Route::resource('menus','MenusController');
 Route::resource('activities','ActivitiesController');
+Route::resource('orders','OrdersController');
+Route::resource('events','EventsController');
+Route::get('show_prize/{event}','EventsController@show_prize')->name('show_prize');
+Route::get('join_event/{event}','EventsController@join_event')->name('join_event');
+Route::get('is_prize','EventsController@is_prize')->name('is_prize');
 
+Route::get('orders.send/{order}','OrdersController@send')->name('orders.send');
+Route::get('orders.giveup/{order}','OrdersController@giveup')->name('orders.giveup');
+Route::get('orders.count','OrdersController@count')->name('orders.count');
+Route::get('menus.count','MenusController@count')->name('menus.count');
 Route::get('/login','SessionController@login')->name('login');
 Route::post('/login_store','SessionController@login_store')->name('login_store');
 Route::get('/logout','SessionController@logout')->name('logout');

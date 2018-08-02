@@ -6,6 +6,10 @@
             <div>
                 <a href="{{route('menus.create')}}"><button type="button" class="btn btn-primary">添加菜品</button></a>
             </div>
+            <br>
+            <div>
+                <a href="{{route('menus.count')}}"><button type="button" class="btn btn-primary">菜品统计</button></a>
+            </div>
             <div><br><br> </div>
             @foreach($menu_categories as $menu_category)
                 <form action="{{route('menus.index')}}" method="get">

@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class OrdersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => []
+        ]);
+    }
     //展示
     public function index(){
 //        echo auth()->user()->shop->id;die;

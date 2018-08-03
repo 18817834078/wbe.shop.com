@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class EventsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => []
+        ]);
+    }
     //展示
     public function index(){
         $events=Event::paginate(5);

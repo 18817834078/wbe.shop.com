@@ -38,6 +38,10 @@
                             <div class="col-xs-2">
                                 <button type="submit" class="btn  btn-sm">已截止</button>
                             </div>
+                        @elseif($event->signup_start>time())
+                            <div class="col-xs-2">
+                                <button type="submit" class="btn  btn-sm">未开始</button>
+                            </div>
                         @elseif(\App\model\EventMember::where([['events_id','=',$event->id],['member_id','=',auth()->user()->id]])->first())
                             <div class="col-xs-2">
                                 <button type="submit" class="btn  btn-sm">已报名</button>

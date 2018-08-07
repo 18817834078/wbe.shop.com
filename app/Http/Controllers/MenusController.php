@@ -7,6 +7,7 @@ use App\model\MenuCategory;
 use App\model\OrderGood;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class MenusController extends Controller
 {
@@ -19,16 +20,46 @@ class MenusController extends Controller
     //展示
     public function index(Request $request){
         $menu_categories=MenuCategory::all()->where('shop_id','=',auth()->user()->shop_id);
-
         $where=[
             ['shop_id','=',auth()->user()->shop_id]
         ];
         if ($request->category_id){$where[]=['category_id','=',$request->category_id];}
-        if ($request->goods_name){$where[]=['goods_name','like','%'.$request->goods_name.'%'];}
+        $search_id=[];
+        if ($request->goods_name){
+//            $where[]=['goods_name','like','%'.$request->goods_name.'%'];
+            //汉字分词搜索
+            $cl = new \App\SphinxClient();
+            $cl->SetServer ( '127.0.0.1', 9312);
+//$cl->SetServer ( '10.6.0.6', 9312);
+//$cl->SetServer ( '10.6.0.22', 9312);
+//$cl->SetServer ( '10.8.8.2', 9312);
+            $cl->SetConnectTimeout ( 10 );
+            $cl->SetArrayResult ( true );
+// $cl->SetMatchMode ( SPH_MATCH_ANY);
+            $cl->SetMatchMode ( SPH_MATCH_EXTENDED2);
+            $cl->SetLimits(0, 1000);
+            $info = $request->goods_name;
+            $res = $cl->Query($info, 'menus');//shopstore_search
+//print_r($cl);
+            if (isset($res['matches'])){
+                foreach ($res['matches'] as $val){
+                    $search_id[]=$val['id'];
+                }
+            }
+
+//            $search_id=substr($search_id,0,-1);
+//            $where[]=['id','in',$search_id];
+        }
         if ($request->price_min){$where[]=['goods_price','>=',$request->price_min];}
         if ($request->price_max){$where[]=['goods_price','<=',$request->price_max];}
 
-        $menus=Menu::where($where)->paginate(5);
+        if (!$request->goods_name){
+            $menus=Menu::where($where)->paginate(5);
+        }else{
+            $menus=Menu::where($where)->whereIn('id',$search_id)->paginate(5);
+        }
+
+
         return view('menu/index',['menus'=>$menus,
             'menu_categories'=>$menu_categories,
             'category_id'=>$request->category_id,
@@ -75,6 +106,14 @@ class MenusController extends Controller
             'goods_img'=>$goods_img,
 
         ]);
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         session()->flash('success','添加成功');
         return redirect()->route('menus.index');
 
@@ -83,6 +122,14 @@ class MenusController extends Controller
     //删除
     public function destroy(Menu $menu){
         $menu->delete();
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         session()->flash('success','删除成功');
         return redirect()->route('menus.index');
     }
@@ -112,6 +159,14 @@ class MenusController extends Controller
         ];
         if ($request->goods_img){$update['goods_img']=$request->goods_img;}
         $menu->update($update);
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         session()->flash('success','修改成功');
         return redirect()->route('menus.index');
     }

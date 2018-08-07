@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\model\Menu;
 use App\model\MenuCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class MenuCategoriesController extends Controller
 {
@@ -49,8 +50,18 @@ class MenuCategoriesController extends Controller
             'description' => $request->description,
             'is_selected' => $request->is_selected,
         ]);
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
+
         session()->flash('success', '添加成功');
         return redirect()->route('menu_categories.index');
+
     }
     //删除
     public function destroy(MenuCategory $menu_category){
@@ -62,6 +73,14 @@ class MenuCategoriesController extends Controller
             return back()->with('danger','此分类内仍有菜品,不可删除');
         }
         $menu_category->delete();
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         session()->flash('success','删除成功');
         return redirect()->route('menu_categories.index');
     }
@@ -83,6 +102,14 @@ class MenuCategoriesController extends Controller
             'name' => $request->name,
             'description' => $request->description,
         ]);
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         session()->flash('success','修改成功');
         return redirect()->route('menu_categories.index');
 

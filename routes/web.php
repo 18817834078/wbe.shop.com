@@ -49,3 +49,24 @@ Route::post('web_upload_shop',function (){
     $file_name=$storage->putFile('/shop',request()->file('file'));
     return ['file_name'=>$storage->url($file_name)];
 })->name('web_upload_shop');
+
+//useless
+Route::get('/test',function (){
+    $cl = new \App\SphinxClient();
+    $cl->SetServer ( '127.0.0.1', 9312);
+//$cl->SetServer ( '10.6.0.6', 9312);
+//$cl->SetServer ( '10.6.0.22', 9312);
+//$cl->SetServer ( '10.8.8.2', 9312);
+    $cl->SetConnectTimeout ( 10 );
+    $cl->SetArrayResult ( true );
+// $cl->SetMatchMode ( SPH_MATCH_ANY);
+    $cl->SetMatchMode ( SPH_MATCH_EXTENDED2);
+    $cl->SetLimits(0, 1000);
+    $info = '开水';
+    $res = $cl->Query($info, 'menus');//shopstore_search
+//print_r($cl);
+    $search_id=[];
+    foreach ($res['matches'] as $val){
+        $search_id[]=$val['id'];
+    }
+});

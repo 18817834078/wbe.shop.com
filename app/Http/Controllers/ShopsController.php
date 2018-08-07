@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\model\Shop;
 use App\model\ShopCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class ShopsController extends Controller
 {
@@ -44,7 +45,13 @@ class ShopsController extends Controller
             $shop_update['shop_img']=$request->shop_img;
         }
         $shop->update($shop_update);
-
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
 
         session()->flash('success','修改成功');
         return redirect()->route('shop_users.show',[1]);

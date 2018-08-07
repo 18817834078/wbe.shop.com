@@ -6,6 +6,7 @@ use App\model\Shop;
 use App\model\ShopUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Validation\Rule;
 
 class ShopUsersController extends Controller
@@ -45,6 +46,14 @@ class ShopUsersController extends Controller
             'name'=>$request->name,
             'email'=>$request->email,
         ]);
+        //redis修改
+        if (Redis::get('shops_json')){
+            Redis::del('shops_json');
+        }
+        if (Redis::get('shop_json'.auth()->user()->shop_id)){
+            Redis::del('shop_json'.auth()->user()->shop_id);
+        }
+
         Auth::logout();
         session()->flash('success','修改成功,请重新登录');
         return redirect()->route('login');
